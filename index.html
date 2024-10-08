@@ -11,8 +11,14 @@
         <header>
             <h1>Minesweeper</h1>
             <div class="controls">
-                <span id="mine-counter">Mines: 10</span>
+                <label for="grid-size">Grid Size:</label>
+                <input type="number" id="grid-size" value="10" min="5" max="20">
+                
+                <label for="mine-count">Mines:</label>
+                <input type="number" id="mine-count" value="10" min="1" max="50">
+                
                 <button id="reset-button">Reset</button>
+                <button id="hint-button">Hint</button>
             </div>
         </header>
         <div id="grid" class="grid"></div>

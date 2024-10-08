@@ -1,83 +1,66 @@
-* {
-    box-sizing: border-box;
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #f4f4f4;
     margin: 0;
     padding: 0;
 }
 
-body {
-    background-color: #f0f0f0;
-    font-family: Arial, sans-serif;
-    display: flex;
-    height: 100vh;
-    justify-content: center;
-    align-items: center;
-}
-
 .game-container {
-    background-color: #fff;
-    border: 2px solid #ccc;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    display: inline-block;
+    margin-top: 30px;
 }
 
 header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     margin-bottom: 20px;
 }
 
 .controls {
-    display: flex;
-    align-items: center;
+    margin-bottom: 10px;
 }
 
-#mine-counter {
+.controls label {
+    margin-right: 5px;
+}
+
+.controls input {
+    width: 50px;
+    padding: 3px;
     margin-right: 10px;
-    font-weight: bold;
 }
 
-#reset-button {
-    padding: 5px 10px;
-    font-size: 1rem;
-    cursor: pointer;
-}
-
-.grid {
+#grid {
     display: grid;
-    grid-template-columns: repeat(10, 40px);
-    grid-template-rows: repeat(10, 40px);
+    justify-content: center;
     gap: 2px;
 }
 
 .cell {
     width: 40px;
     height: 40px;
-    background-color: #bdbdbd;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: bold;
+    background-color: #ddd;
+    text-align: center;
+    line-height: 40px;
+    font-size: 18px;
+    border: 1px solid #999;
     cursor: pointer;
-    user-select: none;
-    border-radius: 4px;
-    position: relative;
 }
 
 .cell.revealed {
-    background-color: #e0e0e0;
+    background-color: #bbb;
     cursor: default;
 }
 
-.cell.flagged::after {
-    content: "🚩";
-    position: absolute;
+.cell.flagged {
+    background-color: #ffcc00;
+}
+
+.cell.mine {
+    background-color: #ff0000;
 }
 
 .message {
-    margin-top: 20px;
-    text-align: center;
-    font-size: 1.2rem;
-    font-weight: bold;
+    margin-top: 10px;
+    font-size: 18px;
+    color: #333;
 }
