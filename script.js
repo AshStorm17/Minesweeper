@@ -227,14 +227,114 @@ function getNumberColor(num) {
     }
 }
 
+// Make a hint (CSP solver)
 function giveHint() {
-    // Implement a hint function that reveals a non-mine cell
+    if (gameOver) return;
+
+    // Gather all revealed cells with numbers
+    let revealedCellsWithNumbers = [];
     for (let r = 0; r < ROWS; r++) {
         for (let c = 0; c < COLS; c++) {
-            if (!grid[r][c].mine && !grid[r][c].revealed) {
-                revealCell(r, c);
-                return; // Reveal only one cell
+            const cell = grid[r][c];
+            if (cell.revealed && cell.adjacentMines > 0) {
+                revealedCellsWithNumbers.push({ r, c, number: cell.adjacentMines });
             }
         }
+    }
+
+    // Track if any moves are made during this hint attempt
+    let moveMade = false;
+
+    // Analyze revealed cells to determine safe moves or mines
+    for (let { r, c, number } of revealedCellsWithNumbers) {
+        let adjacentCells = [];
+        let flaggedCount = 0;
+
+        // Check adjacent cells
+        for (let dr = -1; dr <= 1; dr++) {
+            for (let dc = -1; dc <= 1; dc++) {
+                let nr = r + dr;
+                let nc = c + dc;
+                if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS) {
+                    let adjacentCell = grid[nr][nc];
+                    if (!adjacentCell.revealed && !adjacentCell.flagged) {
+                        adjacentCells.push({ r: nr, c: nc });
+                    } else if (adjacentCell.flagged) {
+                        flaggedCount++;
+                    }
+                }
+            }
+        }
+
+        // If flagged cells equal the number, the remaining adjacent cells are safe
+        if (flaggedCount === number) {
+            adjacentCells.forEach(({ r, c }) => {
+                if (!grid[r][c].revealed) {
+                    revealCell(r, c);
+                    moveMade = true;
+                }
+            });
+            if (moveMade) break; // Only need to make one move per hint
+        }
+
+        // If unflagged cells plus flagged cells equals the number, the unflagged cells are mines
+        if (adjacentCells.length + flaggedCount === number) {
+            adjacentCells.forEach(({ r, c }) => {
+                if (!grid[r][c].flagged) {
+                    flagCell(r, c);
+                    moveMade = true;
+                }
+            });
+            if (moveMade) break; // Only need to make one move per hint
+        }
+    }
+
+    // If no deterministic move, suggest a random unrevealed cell that is safe
+    if (!moveMade) {
+        let safeCells = [];
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                const cell = grid[r][c];
+                // Only include cells that are unrevealed and not mines
+                if (!cell.revealed && !cell.mine) {
+                    safeCells.push({ r, c });
+                }
+            }
+        }
+        // If there are safe cells available, pick one at random
+        if (safeCells.length > 0) {
+            const randomIndex = Math.floor(Math.random() * safeCells.length);
+            const randomCell = safeCells[randomIndex];
+            revealCell(randomCell.r, randomCell.c);
+            moveMade = true; // Indicate that a move was made
+        }
+    }
+
+    // If no moves were made at all, suggest at least one safe cell
+    if (!moveMade) {
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                const cell = grid[r][c];
+                // Suggest the first unrevealed cell as a last resort
+                if (!cell.revealed) {
+                    revealCell(r, c);
+                    moveMade = true;
+                    break;
+                }
+            }
+            if (moveMade) break; // Exit the outer loop if a move is made
+        }
+    }
+}
+
+// Improved flagCell function
+function flagCell(r, c) {
+    const cell = grid[r][c];
+    if (!cell.flagged && !cell.revealed) {
+        cell.flagged = true;
+        flagsPlaced++;
+        const cellElement = document.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`);
+        cellElement.classList.add('flagged');
+        mineCounter.textContent = `Mines: ${MINES - flagsPlaced}`;
     }
 }
